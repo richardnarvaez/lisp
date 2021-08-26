@@ -27,3 +27,17 @@
         (PERIMETRO (* 4 L)))))
 
 
+;; P4 Definir una matriz de 10 filas y 20 columnas, rellenarla,
+;; asignando a cada elemento el valor de la suma de su fila más su
+;; columna y obtener una lista de salida con los elementos de la
+;; diagonal.
+
+(defvar m (make-array '(10 20)))
+
+(prog (res)
+      (dotimes (i 10)
+        (dotimes (j 20)
+          (setf (aref m i j) (+ i j))
+           (when (= i j)
+             (setf res (cons (+ i j) res)))))
+      (return (reverse res)))
