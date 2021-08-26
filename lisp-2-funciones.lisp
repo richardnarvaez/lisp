@@ -143,8 +143,32 @@ El número de argumentos de la definición puede ser 0:
 ; proyección tiene dos argumentos, una función f y un entero n = 1, 2, que indica si se trata de la
 ; primera o la segunda proyección. La n-ésima proyección de f se obtendrá haciendo NIL todos los
 ; argumentos de f salvo el n-ésimo.
+(defmacro hacer-n-veces ((i max &optional res) &body body)
+  `(do ((,i 0 (1+ ,i)))
+       ((>= ,i ,max) ,res)
+     ,@body))
 
 ; c)la función suavizar, que tiene como argumentos una función f : R—>R, un número natural n, un
 ; número real δ y una función suavización : R2n+1—>R. suavizar devuelve la función f suavizada
 ; según suavización, es decir, la función que a x le hace corresponder
 ; suavización(f(x - nδ), f(x - (n-1)δ), ... f(x + δ), f(x), f(x + δ), ...., f(x + nδ))
+
+(defmacro iterar (steps (finp res) &body body)
+  `(labels ((main ,(mapcar #'car steps)
+                  (if ,finp ,res
+                    (progn ,body
+                           (main ,@(apply #'append
+                                          (mapcar #'last steps)))))))
+     (main ,@(mapcar #'cadr steps))))
+
+(defmacro iterar.con.contador (steps (finp res) &body body)
+  (let ((c (gensym "counter")))
+    `(iterar ,(cons `(,c 0 (1+ ,c)) steps)
+             (,finp (values ,res ,c))
+             ,body)))
+
+(defun suma.2 (x y)
+  (iterar.con.contador ((total x (1+ total))
+       (cont y (1- cont)))
+      ((zerop cont) total)
+    (print total) (print cont)))
